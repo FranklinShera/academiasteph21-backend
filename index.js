@@ -1,7 +1,7 @@
 const express = require('express')
 const bodyParser =  require('body-parser')
 const cors = require('cors')
-
+const { requireLogin } = require('./middleware/auth')
 
 
 require('./dbConnection')
@@ -35,7 +35,7 @@ app.get('/', (req,res) => {
 
 
 
-app.get('/reviews', (req, res) => {
+app.get('/reviews',requireLogin, (req, res) => {
   
    res.status(200).send([
     {

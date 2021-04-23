@@ -3,13 +3,29 @@ const { User } = require('.././models')
 const router = express.Router(); 
 const bodyParser =  require('body-parser')
 const cors = require('cors')
-
+const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
+require('dotenv').config();
+
+
 
 const app = express();
 
+
+
+
+
+
 app.use(cors())
 app.use(bodyParser.json());
+
+
+
+
+
+
+
+
 
 
 router.post('/auth/login', async (req, res) => {
@@ -19,12 +35,22 @@ router.post('/auth/login', async (req, res) => {
             
             if(user == null){
                 res.status(404).send({ error : "User Not Found!"})
-            }else{
-                (bcrypt.compare(req.body.password,user.password)) ? res.send({ auth: true ,
-                            message: "Logged In Successfully" ,
-                            user:{ id: user.id , name: user.name , email: user.email }
-                     })  : res.status(404).send({ error : "Invalid Credentials"})
             }
+
+            const isMatching = await bcrypt.compare(req.body.password,user.password);
+
+            if(isMatching){
+                    const token = jwt.sign({ owner: user },process.env.KEY,{ expiresIn: 10000})
+                res.send({ auth: true ,
+                    message: "Logged In Successfully" ,
+                    user:{ id: user.id , name: user.name , email: user.email },
+                    access_token: token
+                }) 
+
+            }else{
+                res.status(404).send({ error : "Invalid Credentials"})
+            }
+        
         
 
     } catch(err){
