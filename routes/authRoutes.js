@@ -34,19 +34,36 @@ router.post('/login', async (req, res) => {
             let user = await User.findOne({ where:{ email : req.body.username}})
             
             if(user == null){
-                res.status(404).send({ error : "User Not Found!"})
+                res.status(422).send({ error : "User Not Found!"})
             }
 
             const isMatching = await bcrypt.compare(req.body.password,user.password);
 
             if(isMatching){
-                    const token = jwt.sign({ owner: user },process.env.KEY,{ expiresIn: 10000})
+                    const token = jwt.sign({ 
+                                                iss: "www.academiasteph21",
+                                                aud: user.id
+                                            },
+                                            process.env.ACCESS_TOKEN_SECRET,
+                                            { 
+                                                expiresIn: 600000
+                                            })
+
+                    const refreshToken = jwt.sign({ 
+                                                iss: "www.academiasteph21",
+                                                aud: user.id
+                                            },
+                                            process.env.REFRESH_TOKEN_SECRET,
+                                            { 
+                                                expiresIn: '1y',
+                                            })
                     
                 res.send({ auth: true ,
                     message: "Logged In Successfully" ,
                     user:{ id: user.id , name: user.name , email: user.email },
-                    access_token: token
-                }) 
+                    access_token: token,
+                    refresh_token: refreshToken
+                })  
 
             }else{
                 res.status(404).send({ error : "Invalid Credentials"})
@@ -84,10 +101,63 @@ router.post('/register', async (req, res) => {
 
 router.post('/refresh-token', async (req, res) => {
     try{
-        res.send('Refresh Token')
+        const token = req.body.refreshToken
+
+        if(!token){
+            throw new Error("Token Not Found!");
+        }
+
+        
+
+        const decodedToken = jwt.verify(token,process.env.REFRESH_TOKEN_SECRET)
+
+        let tokenUser = await User.findOne({ where:{ id : decodedToken.aud }})
+
+
+        
+
+        if(!tokenUser){
+            throw new Error("Token Credentials Invalid!");
+        }
+
+
+
+
+        const newtoken = jwt.sign({ 
+                    iss: "www.academiasteph21",
+                    aud: decodedToken.aud
+                },
+                process.env.ACCESS_TOKEN_SECRET,
+                { 
+                    expiresIn: 600000
+                })
+
+
+
+        const newRefreshToken = jwt.sign({ 
+                    iss: "www.academiasteph21",
+                    aud: decodedToken.aud
+                },
+                process.env.REFRESH_TOKEN_SECRET,
+                { 
+                    expiresIn: '1y',
+                })
+
+
+
+        res.send({ 
+            auth: true ,
+            message: "Logged In Successfully" ,
+            user:{ id: tokenUser.id , name: tokenUser.name , email: tokenUser.email },
+            access_token: newtoken,
+            refresh_token: newRefreshToken
+        })
+
 
     } catch(err){
+
         res.send({error : err})
+
     }  
 
 })
