@@ -4,7 +4,7 @@ const cors = require('cors')
 const { requireLogin } = require('./middleware/auth')
 
 
-require('./dbConnection')
+require('./Helpers/dbConnection')
 
 
 const app = express();
@@ -26,16 +26,17 @@ const { User , Category } = require('./models')
 //MIDDLEWARE
 const AuthRoutes = require('./routes/authRoutes')
 
-app.use(AuthRoutes);
+
 
 
 app.get('/', (req,res) => {
     res.send('Welcome To AcademisSteph21!')
 })
 
+app.use('/auth',AuthRoutes);
 
 
-app.get('/reviews',requireLogin, (req, res) => {
+app.get('/reviews', (req, res) => {
   
    res.status(200).send([
     {

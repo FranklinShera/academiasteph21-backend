@@ -28,7 +28,7 @@ app.use(bodyParser.json());
 
 
 
-router.post('/auth/login', async (req, res) => {
+router.post('/login', async (req, res) => {
     try{
 
             let user = await User.findOne({ where:{ email : req.body.username}})
@@ -41,6 +41,7 @@ router.post('/auth/login', async (req, res) => {
 
             if(isMatching){
                     const token = jwt.sign({ owner: user },process.env.KEY,{ expiresIn: 10000})
+                    
                 res.send({ auth: true ,
                     message: "Logged In Successfully" ,
                     user:{ id: user.id , name: user.name , email: user.email },
@@ -59,7 +60,7 @@ router.post('/auth/login', async (req, res) => {
 
 })
 
-router.post('/auth/register', async (req, res) => {
+router.post('/register', async (req, res) => {
     try{
         User.create({
             name : req.body.name,
@@ -77,6 +78,33 @@ router.post('/auth/register', async (req, res) => {
     }  
 
 })
+
+
+
+
+router.post('/refresh-token', async (req, res) => {
+    try{
+        res.send('Refresh Token')
+
+    } catch(err){
+        res.send({error : err})
+    }  
+
+})
+
+
+
+
+router.delete('/logout', async (req, res) => {
+    try{
+       res.send('Logout')
+
+    } catch(err){
+        res.send({error : err})
+    }  
+
+})
+
 
 
 

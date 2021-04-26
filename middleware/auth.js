@@ -20,6 +20,7 @@ exports.requireLogin = (req, res , next)=>{
             res.status(400).json({message: "Unauthorised!"})
         }
     } catch (error) {
-        
+
+        res.status(400).json({message: "Bad Request Try Again!"})    
     }
 }
