@@ -21,7 +21,11 @@ app.use(bodyParser.json());
 
 
 
-
+// cookie vars
+const COOKIE_HTTP_ONLY = true;
+const COOKIE_SECURE = false;
+const REFRESH_COOKIE_MAX_AGE = 9000000000;
+// cookie vars
 
 
 
@@ -58,12 +62,18 @@ router.post('/login', async (req, res) => {
                                                 expiresIn: '1y',
                                             })
                     
-                res.send({ auth: true ,
-                    message: "Logged In Successfully" ,
-                    user:{ id: user.id , name: user.name , email: user.email },
-                    access_token: token,
-                    refresh_token: refreshToken
-                })  
+                res.cookie("refreshToken", refreshToken,
+                        {
+                            sameSite: 'strict',
+                            maxAge: REFRESH_COOKIE_MAX_AGE,
+                            httpOnly: COOKIE_HTTP_ONLY,
+                            secure: COOKIE_SECURE
+                            
+                        }).send({ auth: true ,
+                            message: "Logged In Successfully" ,
+                            user:{ id: user.id , name: user.name , email: user.email },
+                            access_token: token,
+                        })  
 
             }else{
                 res.status(404).send({ error : "Invalid Credentials"})
@@ -100,8 +110,11 @@ router.post('/register', async (req, res) => {
 
 
 router.post('/refresh-token', async (req, res) => {
+
     try{
-        const token = req.body.refreshToken
+
+        // const token = req.body.refreshToken
+        const token =  req.headers.cookie.split('=')[1]
 
         if(!token){
             throw new Error("Token Not Found!");
@@ -123,7 +136,7 @@ router.post('/refresh-token', async (req, res) => {
 
 
 
-        const newtoken = jwt.sign({ 
+        const newAccessToken = jwt.sign({ 
                     iss: "www.academiasteph21",
                     aud: decodedToken.aud
                 },
@@ -145,18 +158,24 @@ router.post('/refresh-token', async (req, res) => {
 
 
 
-        res.send({ 
-            auth: true ,
-            message: "Logged In Successfully" ,
-            user:{ id: tokenUser.id , name: tokenUser.name , email: tokenUser.email },
-            access_token: newtoken,
-            refresh_token: newRefreshToken
-        })
+        res.cookie("refreshToken", newRefreshToken,
+            {
+                sameSite: 'strict',
+                maxAge: REFRESH_COOKIE_MAX_AGE,
+                httpOnly: COOKIE_HTTP_ONLY,
+                secure: COOKIE_SECURE
+                
+            }).send({ 
+                auth: true ,
+                message: "Logged In Successfully" ,
+                user:{ id: tokenUser.id , name: tokenUser.name , email: tokenUser.email },
+                access_token: newAccessToken
+            })
 
 
     } catch(err){
 
-        res.send({error : err})
+        res.send({ error : err })
 
     }  
 
@@ -167,7 +186,7 @@ router.post('/refresh-token', async (req, res) => {
 
 router.delete('/logout', async (req, res) => {
     try{
-       res.send('Logout')
+       res.status(200).clearCookie("refreshToken").send({ message: "User Logged Out Successfully!"})
 
     } catch(err){
         res.send({error : err})

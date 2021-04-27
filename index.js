@@ -1,6 +1,8 @@
 const express = require('express')
 const bodyParser =  require('body-parser')
 const cors = require('cors')
+const cookieParser = require('cookie-parser')
+
 const { requireLogin } = require('./middleware/auth')
 
 
@@ -14,7 +16,7 @@ const port = '5000'
 
 
 
-app.use(cors());
+app.use(cors({ credentials: true , origin: 'http://localhost:3000'}));
 app.use(bodyParser.json());
 
 
