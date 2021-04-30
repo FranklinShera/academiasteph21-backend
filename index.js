@@ -2,7 +2,6 @@ const express = require('express')
 const bodyParser =  require('body-parser')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
-
 const { requireLogin } = require('./middleware/auth')
 
 
@@ -33,6 +32,10 @@ const AuthRoutes = require('./routes/authRoutes')
 
 app.get('/', (req,res) => {
     res.send('Welcome To AcademisSteph21!')
+})
+
+app.get('/prot',requireLogin,(req,res) => {
+    res.send("PROTECTED ROUTE")
 })
 
 app.use('/auth',AuthRoutes);

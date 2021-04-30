@@ -24,7 +24,8 @@ app.use(bodyParser.json());
 // cookie vars
 const COOKIE_HTTP_ONLY = true;
 const COOKIE_SECURE = false;
-const REFRESH_COOKIE_MAX_AGE = 9000000000;
+const ACCESS_TOKEN_EXPIRE_IN = 600;
+const REFRESH_COOKIE_MAX_AGE = 3000000;
 // cookie vars
 
 
@@ -50,7 +51,7 @@ router.post('/login', async (req, res) => {
                                             },
                                             process.env.ACCESS_TOKEN_SECRET,
                                             { 
-                                                expiresIn: 600000
+                                                expiresIn: ACCESS_TOKEN_EXPIRE_IN
                                             })
 
                     const refreshToken = jwt.sign({ 
@@ -59,7 +60,7 @@ router.post('/login', async (req, res) => {
                                             },
                                             process.env.REFRESH_TOKEN_SECRET,
                                             { 
-                                                expiresIn: '1y',
+                                                expiresIn: REFRESH_COOKIE_MAX_AGE,
                                             })
                     
                 res.cookie("refreshToken", refreshToken,
@@ -142,7 +143,7 @@ router.post('/refresh-token', async (req, res) => {
                 },
                 process.env.ACCESS_TOKEN_SECRET,
                 { 
-                    expiresIn: 600000
+                    expiresIn: ACCESS_TOKEN_EXPIRE_IN
                 })
 
 
@@ -153,7 +154,7 @@ router.post('/refresh-token', async (req, res) => {
                 },
                 process.env.REFRESH_TOKEN_SECRET,
                 { 
-                    expiresIn: '1y',
+                    expiresIn: REFRESH_COOKIE_MAX_AGE,
                 })
 
 
