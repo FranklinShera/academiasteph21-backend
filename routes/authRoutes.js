@@ -1,5 +1,5 @@
 const express = require('express'); 
-const { User } = require('.././models')
+const { User , AcademicLevel } = require('.././models')
 const router = express.Router(); 
 const bodyParser =  require('body-parser')
 const cors = require('cors')
@@ -10,9 +10,6 @@ require('dotenv').config();
 
 
 const app = express();
-
-
-
 
 
 
@@ -30,6 +27,50 @@ const REFRESH_COOKIE_MAX_AGE = 3000000;
 
 
 
+
+router.post('/academic-level', async (req, res) => {
+    
+    try{
+
+
+
+        AcademicLevel.create({
+            level: req.body.level,
+            active: req.body.active
+        }).catch((err) => {
+            res.status(404).send({error: err});
+        })
+
+
+      res.status(201).send({ message: "Academic Level Added!"})
+
+    } catch(err){
+       
+    }  
+
+})
+
+
+router.get('/academic-levels', async (req, res) => {
+
+    try{
+
+        AcademicLevel.findAll().then((academiclvl) => {
+
+            res.status(201).send(academiclvl)
+
+        }).catch((err) => {
+
+            res.send(err)
+
+        })
+
+
+    } catch(err){
+       
+    }  
+
+})
 
 
 
@@ -107,9 +148,6 @@ router.post('/register', async (req, res) => {
 
 })
 
-
-
-
 router.post('/refresh-token', async (req, res) => {
 
     try{
@@ -181,9 +219,6 @@ router.post('/refresh-token', async (req, res) => {
     }  
 
 })
-
-
-
 
 router.delete('/logout', async (req, res) => {
     try{

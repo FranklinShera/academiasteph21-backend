@@ -27,7 +27,9 @@ const { User , Category } = require('./models')
 //MIDDLEWARE
 const AuthRoutes = require('./routes/authRoutes')
 
+const AppRoutes =  require('./routes/appRoutes')
 
+app.use('/auth',AuthRoutes);
 
 
 app.get('/', (req,res) => {
@@ -38,7 +40,7 @@ app.get('/prot',requireLogin,(req,res) => {
     res.send("PROTECTED ROUTE")
 })
 
-app.use('/auth',AuthRoutes);
+
 
 
 app.get('/reviews', (req, res) => {
