@@ -4,7 +4,8 @@ const router = express.Router();
 const bodyParser =  require('body-parser')
 const cors = require('cors')
 const jwt = require('jsonwebtoken')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
+const { requireLogin } = require('../middleware/auth');
 require('dotenv').config();
 
 
@@ -32,8 +33,6 @@ router.post('/academic-level', async (req, res) => {
     
     try{
 
-
-
         AcademicLevel.create({
             level: req.body.level,
             active: req.body.active
@@ -42,7 +41,7 @@ router.post('/academic-level', async (req, res) => {
         })
 
 
-      res.status(201).send({ message: "Academic Level Added!"})
+      res.status(201).send({ message: `${ req.body.level } Level Added!`})
 
     } catch(err){
        
@@ -55,6 +54,30 @@ router.get('/academic-levels', async (req, res) => {
 
     try{
 
+        
+        AcademicLevel.scope('userMode').findAll().then((academiclvl) => {
+
+            res.status(201).send(academiclvl)
+
+        }).catch((err) => {
+
+            res.send(err)
+
+        })
+
+
+    } catch(err){
+       
+    }  
+
+})
+
+
+router.get('/admin/academic-levels' , requireLogin , async (req, res) => {
+
+    try{
+
+        
         AcademicLevel.findAll().then((academiclvl) => {
 
             res.status(201).send(academiclvl)
@@ -70,6 +93,19 @@ router.get('/academic-levels', async (req, res) => {
        
     }  
 
+})
+
+
+
+
+
+
+router.delete('/academic-level/:id', requireLogin , async (req, res) =>{
+    
+    AcademicLevel.destroy({ where:{ id: req.params.id } });
+
+    res.status(200).send({ message: "Level Deleted!"})
+    
 })
 
 
